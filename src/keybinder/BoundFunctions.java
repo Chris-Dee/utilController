@@ -7,8 +7,6 @@ package keybinder;
  */
 public class BoundFunctions {
 	
-	public void prints(){
-		System.out.println("hi");
-	}
+	// put functions here
 	
 }
