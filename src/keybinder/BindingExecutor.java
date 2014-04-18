@@ -26,7 +26,7 @@ public class BindingExecutor {
 		
 		Properties properties = new Properties();
 		try {
-		  properties.load(new FileInputStream("src/utilkeybinder/Bindings.txt"));
+		  properties.load(new FileInputStream("src/keybinder/Bindings.txt"));
 		} catch (IOException e) {
 			System.out.println("IOException");
 		}
