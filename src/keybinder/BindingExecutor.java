@@ -98,9 +98,6 @@ public class BindingExecutor {
 	 * 
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	protected static ArrayList<String> getMethods(){
 		
 		Class<?> actionClass = new BoundFunctions().getClass();
