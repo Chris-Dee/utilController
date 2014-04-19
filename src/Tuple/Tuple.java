@@ -1,4 +1,4 @@
-package util;
+package Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +81,11 @@ public class Tuple<E> {
 		ret.add(x);
 		ret.add(y);
 		return ret;
+	}
+	
+	@Override
+	public int hashCode() {
+		return x.toString().hashCode() + y.toString().hashCode();
 	}
 	
 	/**
