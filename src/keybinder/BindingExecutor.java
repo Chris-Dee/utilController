@@ -1,7 +1,7 @@
 package keybinder;
 
-
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -18,10 +18,12 @@ public class BindingExecutor {
 	 * A class which acts as a back-end for the keybinding util package.
 	 * Handles reflective retrieving and calling of methods based
 	 * on keys pressed and Bindings.txt.
+	 * @throws ClassNotFoundException 
 	 */
-	public BindingExecutor(){
-		BoundFunctions c = new BoundFunctions();
-		actionClass = c.getClass();
+	public BindingExecutor(String methodsClassName) throws ClassNotFoundException{
+//		BoundFunctions c = new BoundFunctions();
+//		actionClass = c.getClass();
+		actionClass = Class.forName(methodsClassName);
 		myBindings = new HashMap<Integer, String>();
 		
 		Properties properties = new Properties();
@@ -68,7 +70,17 @@ public class BindingExecutor {
 	 */
 	private void doReflect(String action){
 		
-		BoundFunctions c = new BoundFunctions();
+//		BoundFunctions c = new BoundFunctions();
+		Constructor<?> ctor;
+		Object actionObject = null;
+		try {
+			ctor = actionClass.getConstructor(String.class);
+			actionObject = ctor.newInstance();
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+			e1.printStackTrace();
+		}
+		
+		actionObject = actionClass.cast(actionObject);
 		
 		Object[] args = new Object[0];
 		
@@ -78,7 +90,7 @@ public class BindingExecutor {
 			String mname = m.getName();
 				if (mname.startsWith(action)){
 					try {
-						m.invoke(c, args);
+						m.invoke(actionObject, args);
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
 					} catch (IllegalArgumentException e) {
@@ -98,16 +110,25 @@ public class BindingExecutor {
 	 * 
 	 * @return
 	 */
-	protected static ArrayList<String> getMethods(){
-		
-		Class<?> actionClass = new BoundFunctions().getClass();
+	protected ArrayList<String> getMethods(){
 		
 		Method[] allMethods = actionClass.getDeclaredMethods();
 		ArrayList<String> methodNames = new ArrayList<String>();
 		
 		for(Method m : allMethods){
-			methodNames.add(m.getName());
+			Bind annos = m.getAnnotation(Bind.class);
+            if (annos != null && m.getParameterTypes().length==0) {
+            	methodNames.add(m.getName());
+            }
 		}
+		
+		if(methodNames.isEmpty()){
+			for(Method m : allMethods){
+				if(m.getParameterTypes().length==0){
+					methodNames.add(m.getName());
+				}
+			}
+        }
 		
 		return methodNames;
 		
