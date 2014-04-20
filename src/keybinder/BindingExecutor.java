@@ -20,10 +20,12 @@ public class BindingExecutor {
 	 * on keys pressed and Bindings.txt.
 	 * @throws ClassNotFoundException 
 	 */
-	public BindingExecutor(String methodsClassName) throws ClassNotFoundException{
-//		BoundFunctions c = new BoundFunctions();
-//		actionClass = c.getClass();
-		actionClass = Class.forName(methodsClassName);
+	public BindingExecutor(String methodsClassName){
+		try {
+			actionClass = Class.forName(methodsClassName);
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
 		myBindings = new HashMap<Integer, String>();
 		
 		Properties properties = new Properties();
@@ -62,7 +64,7 @@ public class BindingExecutor {
 	
 	/**
 	 * This method is used in executeInput().
-	 * It reflectively invokes the method in the BoundFunctions
+	 * It reflectively invokes the method in the actionClass
 	 * class with name matching String action.
 	 * 
 	 * @param action
@@ -70,7 +72,6 @@ public class BindingExecutor {
 	 */
 	private void doReflect(String action){
 		
-//		BoundFunctions c = new BoundFunctions();
 		Constructor<?> ctor;
 		Object actionObject = null;
 		try {
@@ -105,7 +106,7 @@ public class BindingExecutor {
 	
 	/**
 	 * Reflectively retrieves the names of the methods in
-	 * the BoundFunctions class and returns them as
+	 * the actionClass class and returns them as
 	 * an ArrayList of Strings.
 	 * 
 	 * @return
