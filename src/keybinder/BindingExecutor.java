@@ -75,7 +75,7 @@ public class BindingExecutor {
 		Constructor<?> ctor;
 		Object actionObject = null;
 		try {
-			ctor = actionClass.getConstructor(String.class);
+			ctor = actionClass.getConstructor();
 			actionObject = ctor.newInstance();
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
 			e1.printStackTrace();
