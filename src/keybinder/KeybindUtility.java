@@ -1,5 +1,7 @@
 package keybinder;
 
+import java.awt.AWTException;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,15 +16,18 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import ch.aplu.xboxcontroller.XboxController;
+import ch.aplu.xboxcontroller.XboxControllerAdapter;
+
 @SuppressWarnings("serial")
 public class KeybindUtility extends JFrame {
 	private static final String WAIT_STATUS = "    Click Set to Bind, Click Clear to Delete Binding    ";
 	private static final String CHANGE_STATUS = "    Press the Key You Wish to Bind to Action    ";
-
+	private XboxController xc=new XboxController();
 	private JLabel statusLabel = new JLabel(WAIT_STATUS);
 	private List<String> commandList;
-
-	protected Map<Integer, String> keyBindings = new HashMap<Integer, String>();
+	//private Map<JButton,String> commandMap=new HashMap<JButton,String>();
+	public Map<Integer, String> keyBindings = new HashMap<Integer, String>();
 
 	/**
 	 * A utility class to easily swap meaningful key inputs for the editor as
@@ -38,6 +43,11 @@ public class KeybindUtility extends JFrame {
 	 * keyboard inputs
 	 */
 	private void initialize() {
+		if(!xc.isConnected())
+			System.out.println("controller not connected");
+			xc.addXboxControllerListener(new XboxControllerAdapter());
+				
+		//}
 		setTitle("Define User Input");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setFocusable(true);
@@ -65,22 +75,14 @@ public class KeybindUtility extends JFrame {
 
 			public void keyReleased(KeyEvent e) {
 				boolean alreadyBound = false;
-
+				
 				for (Integer event : keyBindings.keySet()) {
 					if (event == e.getKeyCode()) {
 						alreadyBound = true;
 					}
 				}
-				if (alreadyBound) {
-					statusLabel.setText("Key Already Bound");
-					//button.setFocusable(false);
-				} else {
-					keyBindings.put(e.getKeyCode(), command);
-					label.setText(KeyEvent.getKeyText(e.getKeyCode())
-							+ "        ");
-					statusLabel.setText(WAIT_STATUS);
-					
-				}
+				setBinding(alreadyBound,e.getKeyCode(),command,label);
+				
 
 			}
 
@@ -89,7 +91,7 @@ public class KeybindUtility extends JFrame {
 			}
 
 		});
-
+		//button.
 	}
 
 	/**
@@ -140,12 +142,19 @@ public class KeybindUtility extends JFrame {
 	 */
 	private void createClearListener(JButton clearButton, final JLabel binding,
 			final String command) {
+		clearButton.setFocusable(false);
 		clearButton.addActionListener(new ActionListener() {
-
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// System.out.println("Clear Current Binding");
 				binding.setText("<>      ");
+//				try {
+//					(new Robot()).keyRelease(KeyEvent.VK_A);
+//				} catch (AWTException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 				for(Integer key : keyBindings.keySet()) {
 					if(keyBindings.get(key).equals(command)) {
 						keyBindings.remove(key);
@@ -169,6 +178,20 @@ public class KeybindUtility extends JFrame {
 	 * @param command
 	 *            The label that describes the method the panel controls
 	 */
+	public void setBinding(boolean alreadyBound, int keyCode,String command, JLabel label){
+		if (alreadyBound) {
+			statusLabel.setText("Key Already Bound");
+			//button.setFocusable(false);
+		} else {
+			System.out.println(keyCode);
+			keyBindings.put(keyCode, command);
+			label.setText(KeyEvent.getKeyText(keyCode)
+					+ "        ");
+			statusLabel.setText(WAIT_STATUS);
+			
+		}
+
+	}
 	private void createSetListener(final JButton setButton,
 			final JLabel binding, final String command) {
 		setButton.addActionListener(new ActionListener() {
