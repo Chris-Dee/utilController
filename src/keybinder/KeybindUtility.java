@@ -28,7 +28,7 @@ public class KeybindUtility extends JFrame {
 	private List<String> commandList;
 	//private Map<JButton,String> commandMap=new HashMap<JButton,String>();
 	public Map<Integer, String> keyBindings = new HashMap<Integer, String>();
-
+	private Map<JButton, String> buttonMap = new HashMap<JButton, String>();
 	/**
 	 * A utility class to easily swap meaningful key inputs for the editor as
 	 * well as for the game being created.
@@ -43,9 +43,9 @@ public class KeybindUtility extends JFrame {
 	 * keyboard inputs
 	 */
 	private void initialize() {
-		if(!xc.isConnected())
-			System.out.println("controller not connected");
-			xc.addXboxControllerListener(new XboxControllerAdapter());
+//		if(!xc.isConnected())
+//			System.out.println("controller not connected");
+//			xc.addXboxControllerListener(new XboxControllerAdapter());
 				
 		//}
 		setTitle("Define User Input");
@@ -112,6 +112,7 @@ public class KeybindUtility extends JFrame {
 			JLabel commandLabel = new JLabel(command + "    ");
 			JLabel binding = new JLabel("<>      ");
 			JButton setButton = new JButton("Set");
+			buttonMap.put(setButton, command);
 			createSetListener(setButton, binding, command);
 			JButton clearButton = new JButton("Clear");
 			createClearListener(clearButton, binding, command);
@@ -198,6 +199,7 @@ public class KeybindUtility extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				
 				statusLabel.setText(CHANGE_STATUS);
 				generateButtonListener(binding, command, setButton);
 
