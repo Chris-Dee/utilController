@@ -43,9 +43,11 @@ public class KeybindUtility extends JFrame {
 	 * keyboard inputs
 	 */
 	private void initialize() {
+		xc.addXboxControllerListener(new XboxAdapter());
 		if(!xc.isConnected())
 			System.out.println("controller not connected");
-			xc.addXboxControllerListener(new XboxControllerAdapter());
+		else System.out.println("connected");
+			
 				
 		//}
 		setTitle("Define User Input");

@@ -10,4 +10,5 @@ public class BoundFunctions {
 	
 	// put functions here
 	public void yeah (){}
+	public void woo(){}
 }

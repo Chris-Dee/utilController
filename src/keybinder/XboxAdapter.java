@@ -20,8 +20,9 @@ public class XboxAdapter extends XboxControllerAdapter {
 
 	 public void buttonA(boolean pressed)
 	    {
-		 robot.keyPress(1);
-		isPressed(pressed,KeyEvent.VK_ALL_CANDIDATES);
+		 System.out.println("A pressed");
+		 robot.keyPress(KeyEvent.VK_A);
+		isPressed(pressed,KeyEvent.VK_A);
 	    }
 
 	    public void buttonB(boolean pressed)
@@ -110,6 +111,6 @@ public class XboxAdapter extends XboxControllerAdapter {
 	    }
 	    public void isPressed(boolean b, int i){
 	    	if(b)
-	    		robot.keyPress(i);
+	    		robot.keyRelease(i);
 	    }
 }
