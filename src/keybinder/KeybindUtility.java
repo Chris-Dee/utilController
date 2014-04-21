@@ -28,7 +28,8 @@ public class KeybindUtility extends JFrame {
 	private List<String> commandList;
 	//private Map<JButton,String> commandMap=new HashMap<JButton,String>();
 	public Map<Integer, String> keyBindings = new HashMap<Integer, String>();
-
+	public Map<JButton, String> buttonToCommandMap = new HashMap<JButton, String>();
+	private Map<JButton, JLabel> buttonMap = new HashMap<JButton, JLabel>();
 	/**
 	 * A utility class to easily swap meaningful key inputs for the editor as
 	 * well as for the game being created.
@@ -43,11 +44,14 @@ public class KeybindUtility extends JFrame {
 	 * keyboard inputs
 	 */
 	private void initialize() {
-		xc.addXboxControllerListener(new XboxAdapter());
+		XboxAdapter adapt=new XboxAdapter();
+		adapt.setKeys(this);
+		xc.addXboxControllerListener(adapt);
 		if(!xc.isConnected())
 			System.out.println("controller not connected");
 		else System.out.println("connected");
 			
+
 				
 		//}
 		setTitle("Define User Input");
@@ -62,13 +66,23 @@ public class KeybindUtility extends JFrame {
 		setLocationRelativeTo(null);
 
 	}
+	public boolean isBoundAlready(int keyCode) {
+		boolean alreadyBound = false;
 
+		for (Integer event : keyBindings.keySet()) {
+			if (event == keyCode) {
+				alreadyBound = true;
+			}
+		}
+		return alreadyBound;
+	}
 	/**
 	 * Generates a constantly present key listener that will update a KeyEvent
 	 * buffer variable with the most recently released key.
 	 */
 	private void generateButtonListener(final JLabel label,
 			final String command, final JButton button) {
+
 		button.addKeyListener(new KeyListener() {
 
 			public void keyPressed(KeyEvent e) {
@@ -76,17 +90,13 @@ public class KeybindUtility extends JFrame {
 			}
 
 			public void keyReleased(KeyEvent e) {
-				boolean alreadyBound = false;
-				
-				for (Integer event : keyBindings.keySet()) {
-					if (event == e.getKeyCode()) {
-						alreadyBound = true;
-					}
-				}
-				setBinding(alreadyBound,e.getKeyCode(),command,label);
+				int keyCode = e.getKeyCode();
+				setBinding(isBoundAlready(keyCode),e.getKeyCode(),command);
 				
 
 			}
+
+			
 
 			public void keyTyped(KeyEvent e) {
 				// Do nothing - must be present for interface
@@ -114,9 +124,12 @@ public class KeybindUtility extends JFrame {
 			JLabel commandLabel = new JLabel(command + "    ");
 			JLabel binding = new JLabel("<>      ");
 			JButton setButton = new JButton("Set");
-			createSetListener(setButton, binding, command);
+			buttonMap.put(setButton, binding);
+			buttonToCommandMap.put(setButton, command);
+			createSetListener(setButton, binding);
 			JButton clearButton = new JButton("Clear");
-			createClearListener(clearButton, binding, command);
+			buttonToCommandMap.put(clearButton, command);
+			createClearListener(clearButton, binding);
 			componentPanel.add(commandLabel);
 			componentPanel.add(binding);
 			componentPanel.add(setButton);
@@ -139,11 +152,8 @@ public class KeybindUtility extends JFrame {
 	 * @param clearButton
 	 * @param binding
 	 *            The label that describes the bound key event
-	 * @param command
-	 *            The label that describes the method the panel controls
 	 */
-	private void createClearListener(JButton clearButton, final JLabel binding,
-			final String command) {
+	private void createClearListener(final JButton clearButton, final JLabel binding) {
 		clearButton.setFocusable(false);
 		clearButton.addActionListener(new ActionListener() {
 			
@@ -158,8 +168,10 @@ public class KeybindUtility extends JFrame {
 //					e1.printStackTrace();
 //				}
 				for(Integer key : keyBindings.keySet()) {
-					if(keyBindings.get(key).equals(command)) {
+					System.out.println(buttonToCommandMap.get(clearButton));
+					if(keyBindings.get(key).equals(buttonToCommandMap.get(clearButton))) {
 						keyBindings.remove(key);
+						System.out.println(isBoundAlready(key));
 					}
 				}
 				
@@ -180,14 +192,14 @@ public class KeybindUtility extends JFrame {
 	 * @param command
 	 *            The label that describes the method the panel controls
 	 */
-	public void setBinding(boolean alreadyBound, int keyCode,String command, JLabel label){
+	public void setBinding(boolean alreadyBound, int keyCode,String command){
+		JLabel label=buttonMap.get(findFocused());
 		if (alreadyBound) {
 			statusLabel.setText("Key Already Bound");
 			//button.setFocusable(false);
 		} else {
-			System.out.println(keyCode);
 			keyBindings.put(keyCode, command);
-			label.setText(KeyEvent.getKeyText(keyCode)
+			label.setText(keyCode
 					+ "        ");
 			statusLabel.setText(WAIT_STATUS);
 			
@@ -195,13 +207,14 @@ public class KeybindUtility extends JFrame {
 
 	}
 	private void createSetListener(final JButton setButton,
-			final JLabel binding, final String command) {
+			final JLabel binding) {
 		setButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				
 				statusLabel.setText(CHANGE_STATUS);
-				generateButtonListener(binding, command, setButton);
+				generateButtonListener(binding, buttonToCommandMap.get(setButton), setButton);
 
 			}
 
@@ -245,4 +258,11 @@ public class KeybindUtility extends JFrame {
 		System.out.println(properties);
 		
 	}
-}
+	JButton findFocused(){
+		for(JButton b:buttonMap.keySet()){
+			if(b.isFocusOwner())
+				return b;
+		}
+		return null;
+		}
+	}
